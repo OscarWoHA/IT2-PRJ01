@@ -46,7 +46,12 @@ function preload() {
             name: 'ready',
             sound: loadSound('art/glaz/ready.mp3'),
             champion: 1
-        }, 
+        },
+        {
+            name: 'glaz_gun',
+            sound: loadSound('art/glaz/gun.mp3'),
+            champion: 1
+        },
         {
             name: 'iknow',
             sound: loadSound('art/kapkan/iknow.mp3'),
@@ -57,6 +62,11 @@ function preload() {
             sound: loadSound('art/kapkan/job.mp3'),
             champion: 0
         }, 
+        {
+            name: 'kapkan_gun',
+            sound: loadSound('art/kapkan/gun.mp3'),
+            champion: 0
+        },
         {
             name: 'detected',
             sound: loadSound('art/tachanka/detected.mp3'),
@@ -70,6 +80,11 @@ function preload() {
         {
             name: 'rely',
             sound: loadSound('art/tachanka/rely.mp3'),
+            champion: 2
+        }, 
+        {
+            name: 'tachanka_gun',
+            sound: loadSound('art/tachanka/gun.mp3'),
             champion: 2
         })
 
@@ -405,6 +420,13 @@ function keyPressed() {
 
 function mouseClicked() {
     if (gameState == 1) {
+        let sound = sounds.filter(sound => {
+            return sound.champion == selectedChampion && sound.name.includes('_gun')
+        })[0]
+
+        if (!sound.sound.isPlaying())
+            sound.sound.play()
+
         if (mouseX >= mob.x && mouseX <= (mob.x + part)) {
             if (mouseY >= mob.y && mouseY <= (mob.y + part)) {
                 mob.x = random(0, width - part)
@@ -412,7 +434,8 @@ function mouseClicked() {
 
                 mob.speed_x = Math.floor(random(2, 6))
                 mob.speed_y = Math.floor(random(2, 6))
-    
+
+                
                 score += 1
 
                 if (score == scoreRequired) {
@@ -442,8 +465,7 @@ function getSound(name) {
 }
 
 function getSoundsByChampion(champion) {
-    console.log(champion)
-    return sounds.filter(sound => { return sound.champion == champion})
+    return sounds.filter(sound => { return sound.champion == champion && !sound.name.includes('_gun') })
 }
 
 /**
@@ -467,7 +489,7 @@ function insertAudio(file, options) {
 
         // Controls option
         if (options.controls) {
-            songelement.contains = ''
+            songelement.controls = ''
         }
     }
     
