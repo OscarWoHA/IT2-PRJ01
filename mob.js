@@ -32,6 +32,7 @@ class Mob {
         imageMode(CORNER)
 
         stroke(255)
+        strokeWeight(1)
         noFill()
 
         if (Math.sign(this.speed_x) == 1) {

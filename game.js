@@ -27,7 +27,51 @@ let part = 600 / 10
 
 function preload() {
     // Initialize all sounds into sound array
-    sounds.push({ name: 'intro', sound: insertAudio('art/soviet.mp3')})
+    sounds.push(
+        { 
+            name: 'intro', 
+            sound: insertAudio('art/soviet_lav.mp3')
+        },
+        {
+            name: 'bullets',
+            sound: loadSound('art/glaz/bullets.mp3'),
+            champion: 1 // glaz
+        },
+        {
+            name: 'oneshot',
+            sound: loadSound('art/glaz/oneshot.mp3'),
+            champion: 1
+        },
+        {
+            name: 'ready',
+            sound: loadSound('art/glaz/ready.mp3'),
+            champion: 1
+        }, 
+        {
+            name: 'iknow',
+            sound: loadSound('art/kapkan/iknow.mp3'),
+            champion: 0
+        }, 
+        {
+            name: 'job',
+            sound: loadSound('art/kapkan/job.mp3'),
+            champion: 0
+        }, 
+        {
+            name: 'detected',
+            sound: loadSound('art/tachanka/detected.mp3'),
+            champion: 2
+        }, 
+        {
+            name: 'lmg',
+            sound: loadSound('art/tachanka/lmg.mp3'),
+            champion: 2
+        }, 
+        {
+            name: 'rely',
+            sound: loadSound('art/tachanka/rely.mp3'),
+            champion: 2
+        })
 
     // Initialize all sprites into sprite array
     sprites.push(
@@ -308,9 +352,21 @@ function keyPressed() {
         if (keyCode == LEFT_ARROW) {
             if (selectedChampion == 0) selectedChampion = 2
             else selectedChampion -= 1
+
+            let sounds = getSoundsByChampion(selectedChampion)
+
+            if (sounds.length != 0) {
+                sounds[Math.floor(random(0, sounds.length-1))].sound.play()
+            }
         } else if (keyCode == RIGHT_ARROW) {
             if (selectedChampion == 2) selectedChampion = 0
             else selectedChampion += 1
+
+            let sounds = getSoundsByChampion(selectedChampion)
+            
+            if (sounds.length != 0) {
+                sounds[Math.floor(random(0, sounds.length - 1))].sound.play()
+            }
         } else if (keyCode == ENTER) {
             gameState = 1 // Set the game state to active
 
@@ -383,6 +439,11 @@ function getSprite(name) {
  */
 function getSound(name) {
     return sounds.filter(sound => { return sound.name == name})[0]
+}
+
+function getSoundsByChampion(champion) {
+    console.log(champion)
+    return sounds.filter(sound => { return sound.champion == champion})
 }
 
 /**
