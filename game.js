@@ -33,18 +33,18 @@ let part = 600 / 10
 
 function preload() {
     let songelement = document.createElement('audio')
-    songelement.src = '/art/soviet.mp3'
+    songelement.src = 'art/soviet.mp3'
     songelement.autoplay = ''
     document.body.appendChild(songelement)
     song = songelement
 
     sprites.push(
-        { name: 'glaz', image: loadImage('/art/Glaz8bit.png')}, 
-        { name: 'kapkan', image: loadImage('/art/Kapkan8bit.png')},
-        { name: 'tachanka', image: loadImage('/art/Tachanka8bit.png')},
-        { name: 'background', image: loadImage('/art/Spetsnaz8bit.png')},
-        { name: 'spy_left', image: loadImage('/art/sprite_0.png')},
-        { name: 'spy_right', image: loadImage('/art/sprite_1.png')},
+        { name: 'glaz', image: loadImage('art/Glaz8bit.png')}, 
+        { name: 'kapkan', image: loadImage('art/Kapkan8bit.png')},
+        { name: 'tachanka', image: loadImage('art/Tachanka8bit.png')},
+        { name: 'background', image: loadImage('art/Spetsnaz8bit.png')},
+        { name: 'spy_left', image: loadImage('art/sprite_0.png')},
+        { name: 'spy_right', image: loadImage('art/sprite_1.png')},
         )
 }
 
