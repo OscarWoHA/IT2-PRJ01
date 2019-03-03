@@ -8,6 +8,7 @@
  * - Implement sounds
  * - Implement background for mid game
  * - Exponential increase in speed, following the linear curve of timeLeft, less timeLeft, higher speed
+ * - Sleep
  */
 
 let image_data = { x: 0, y: 0, speed_x: 2, speed_y: 2 } // Should probably be revamped/included in sprites array/object
