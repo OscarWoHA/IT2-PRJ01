@@ -1,23 +1,15 @@
 /**
  * TODO
- * - Optimize code
- * - Comments
- * - Clearer variable names
- * - Implement check for timeLeft in draw loop, to change gameState to end screen
- * - Implement end screen
  * - Implement sounds
- * - Implement background for mid game
- * - Exponential increase in speed, following the linear curve of timeLeft, less timeLeft, higher speed
- * - Sleep
+ * - Implement background on main game
+ * - More comments
  */
-
-let image_data = { x: 0, y: 0, speed_x: 2, speed_y: 2 } // Should probably be revamped/included in sprites array/object
 
 let sprites = []
 
-let russia_background
+let sounds = []
 
-let song // Will be revamped for new sound collection system
+let volume = 2
 
 let score = 0
 let scoreRequired = 0
@@ -27,17 +19,17 @@ let timeLeftCounter // setInterval, used to cancel the counter whenever a game i
 
 let gameState = 0
 
+let mob, arrow
+
 let selectedChampion = 1 // Not susceptible to change
 
 let part = 600 / 10
 
 function preload() {
-    let songelement = document.createElement('audio')
-    songelement.src = 'art/soviet.mp3'
-    songelement.autoplay = ''
-    document.body.appendChild(songelement)
-    song = songelement
+    // Initialize all sounds into sound array
+    sounds.push({ name: 'intro', sound: insertAudio('art/soviet.mp3')})
 
+    // Initialize all sprites into sprite array
     sprites.push(
         { name: 'glaz', image: loadImage('art/Glaz8bit.png')}, 
         { name: 'kapkan', image: loadImage('art/Kapkan8bit.png')},
@@ -45,28 +37,26 @@ function preload() {
         { name: 'background', image: loadImage('art/Spetsnaz8bit.png')},
         { name: 'spy_left', image: loadImage('art/sprite_0.png')},
         { name: 'spy_right', image: loadImage('art/sprite_1.png')},
-        )
+        { name: 'spy_large', image: loadImage('art/sprite_0_large.png')})
 }
 
 function setup() {
-    createCanvas(600, 500)
+    createCanvas(600, 600)
     frameRate(60)
 
-    textSize(16)
+    mob = new Mob()
+    arrow = new Arrow(3, 10, 10)
 
     scoreRequired = Math.floor(random(10, 30))
-    timeLeft = Math.floor(random(60, 120))
-
-    image_data.x = random(0, width-part)
-    image_data.y = random(0, height-part)
+    timeLeft = Math.floor(random(30, 60))
     
     textFont('VT323')
 }
 
 function draw() {
     if (gameState == 0) { // Pregame
-        // Start introsange
-        song.play().then(() => {
+        // Start intro
+        getSound('intro').sound.play().then(() => {
             background(0)
 
             imageMode(CORNER)
@@ -223,6 +213,34 @@ function draw() {
                 default:
                     break;
             }
+
+            stroke(0)
+            strokeWeight(3)
+
+            let volumeText = `VOLUME: ${Math.floor(volume*10)}%`
+
+            textAlign(LEFT)
+            textSize(16)
+            text(volumeText, 4, height - 4)
+
+            let spySprite = getSprite('spy_large')
+
+            rectMode(CORNER)
+            imageMode(CORNER)
+
+            noFill()
+            stroke(0)
+            strokeWeight(3)
+
+            let size = part * 1.25
+
+            rect(width - size - 5, 5, size, size)
+            image(spySprite.image, width - size - 5, 5, size, size)
+
+            fill(255)
+            textSize(16)
+            textAlign(CENTER)
+            text('WANTED', width - size/2 - 5, size + 20)
         }, () => {
             background(0)
             fill(255, 0, 0)
@@ -231,40 +249,45 @@ function draw() {
             text(`PLEASE INTERACT WITH THE PAGE`, width/2, height/2)
         })
     } else if (gameState == 1) { // Kjører
-        background(0)
+        background(0) // Set the background to black every frame
 
-        // Stopp introsangen
-        song.pause()
+        getSound('intro').sound.pause() // Stop intro
 
-        drawGame()
+        drawGame() // Run drawGame function
     } else if (gameState == 2) { // Ferdig
         background(0)
 
-        imageMode(CORNER)
-        image(getSprite('background').image, 0, 0, width, height)
+        textAlign(CENTER)
+        textSize(64)
+
+        stroke(0)
+        strokeWeight(5)
+
+        if (timeLeft > 0) {
+            text('You won!', width/2, height/2)
+
+            textSize(32)
+
+            let textOffset = 32
+
+            text(`Final time`, width / 2, height / 2 + textOffset*2)
+
+            textSize(24)
+            text(`${timeLeft} seconds`, width / 2, height / 2 + textOffset*2.75)
+        } else {
+            text('Times up!', width / 2, height / 2)
+        }
     }
 }
 
 function drawGame() {
     noCursor()
 
-    rectMode(CORNER)
-    imageMode(CORNER)
-    stroke(255)
-    noFill()
+    mob.draw()
 
-    if(Math.sign(image_data.speed_x) == 1) {
-        rect(image_data.x, image_data.y, part,part)
-        image(getSprite('spy_right').image, image_data.x, image_data.y, part, part)
-    } else if (Math.sign(image_data.speed_x) == -1) {
-        rect(image_data.x, image_data.y, part,part)
-        image(getSprite('spy_left').image, image_data.x, image_data.y, part, part)
-    }
-    noStroke()
+    arrow.draw()
 
-    drawArrow()
-
-    update()
+    mob.update()
 
     fill(255)
 
@@ -280,28 +303,6 @@ function drawGame() {
     text(timeLeftText, textWidth(timeLeftText) + 6, 54)
 }
 
-function drawArrow() {
-    rectMode(CENTER)
-
-    fill(255,0,0)
-
-    let thickness = 3
-    let offset = 10
-    let length = 10
-
-    // Rektangel nord
-    rect(mouseX, mouseY - offset, thickness, length)
-
-    // Rektangel sør
-    rect(mouseX, mouseY + offset, thickness, length)
-
-    // Rektangel vest
-    rect(mouseX - offset, mouseY, length, thickness)
-
-    // Rektangel øst
-    rect(mouseX + offset, mouseY, length, thickness)
-}
-
 function keyPressed() {
     if (gameState == 0) {
         if (keyCode == LEFT_ARROW) {
@@ -311,59 +312,109 @@ function keyPressed() {
             if (selectedChampion == 2) selectedChampion = 0
             else selectedChampion += 1
         } else if (keyCode == ENTER) {
-            gameState = 1
+            gameState = 1 // Set the game state to active
 
             timeLeftCounter = setInterval(() => {
-                timeLeft -= 1
-            }, 1000)
+                timeLeft -= 1 // Subtract a second from timeLeft
+
+                if (timeLeft == 0) {
+                    gameState = 2 // Set the game to finished
+
+                    clearInterval(timeLeftCounter) // Stop the timeLeft counter
+                }
+            }, 1000) // Run with the interval of 1000 ms, equal to 1 second
+        } else if (key == 'z') {
+            volume = volume - 1
+
+            if (volume < 0) volume = 0
+
+            sounds.forEach(sound => {
+                sound.sound.volume = volume/10
+            })
+
+            masterVolume(volume / 10)
+        } else if (key == 'x') {
+            volume = volume + 1
+
+            if (volume > 10) volume = 10
+
+            sounds.forEach(sound => {
+                sound.sound.volume = volume/10
+            })
+
+            masterVolume(volume / 10)
         }
     }
 }
 
 function mouseClicked() {
     if (gameState == 1) {
-        if(mouseX >= image_data.x && mouseX <= (image_data.x + part)) {
-            if(mouseY >= image_data.y && mouseY <= (image_data.y + part)) {
-                image_data.x = random(0, width-part)
-                image_data.y = random(0, height-part)
+        if (mouseX >= mob.x && mouseX <= (mob.x + part)) {
+            if (mouseY >= mob.y && mouseY <= (mob.y + part)) {
+                mob.x = random(0, width - part)
+                mob.y = random(0, height - part)
 
-                image_data.speed_x = Math.floor(random(2, 6))
-                image_data.speed_y = Math.floor(random(2, 6))
+                mob.speed_x = Math.floor(random(2, 6))
+                mob.speed_y = Math.floor(random(2, 6))
     
                 score += 1
 
                 if (score == scoreRequired) {
-                    gameState = 2
+                    gameState = 2 // Set the game to finished
+
+                    clearInterval(timeLeftCounter)
                 }
             }
         }
     }
 }
 
-function update() {
-    image_data.x += image_data.speed_x
-    image_data.y += image_data.speed_y
-
-    if(image_data.x+part >= width) {
-        image_data.speed_x = -Math.abs(image_data.speed_x)
-    } 
-
-    if(image_data.x < 0) {
-        image_data.speed_x = Math.abs(image_data.speed_x)
-    }
-
-    if(image_data.y+part >= height) {
-        image_data.speed_y = -Math.abs(image_data.speed_y)
-    }
-
-    if(image_data.y < 0) {
-        image_data.speed_y = Math.abs(image_data.speed_y)
-    }
-}
-
+/**
+ * Function to get a sprite object with the specified name
+ * @param {string} name 
+ */
 function getSprite(name) {
     return sprites.filter(sprite => { return sprite.name == name })[0]
 }
 
-// Lånt fra https://gist.github.com/phobeo/793329
-function gcd(a,b) {if(b>a) {temp = a; a = b; b = temp} while(b!=0) {m=a%b; a=b; b=m;} return a;}
+/**
+ * Function to get a sound object with the specified name
+ * @param {string} name 
+ */
+function getSound(name) {
+    return sounds.filter(sound => { return sound.name == name})[0]
+}
+
+/**
+ * Function to insert an audio-element to the document
+ * @param {string} file 
+ * @param {object} options 
+ */
+function insertAudio(file, options) {
+    // Use DOM manipulation to create a virtual HTML element
+    let songelement = document.createElement('audio')
+
+    // Set the 'src' variable of the element equal to file
+    songelement.src = file
+
+    // Check if any options were passed
+    if (options) {
+        // Autoplay option
+        if (options.autoplay) {
+            songelement.autoplay = ''
+        }
+
+        // Controls option
+        if (options.controls) {
+            songelement.contains = ''
+        }
+    }
+    
+    songelement.volume = volume / 10
+
+    // Append the virtual HTML element to the actual DOM
+    document.body.appendChild(songelement)
+
+    // Return the element
+    return songelement
+}
