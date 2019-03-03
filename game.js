@@ -1,25 +1,50 @@
-let image_data = { x: 0, y: 0, speed_x: 2, speed_y: 2 }
+/**
+ * TODO
+ * - Optimize code
+ * - Comments
+ * - Clearer variable names
+ * - Implement check for timeLeft in draw loop, to change gameState to end screen
+ * - Implement end screen
+ * - Implement sounds
+ * - Implement background for mid game
+ * - Exponential increase in speed, following the linear curve of timeLeft, less timeLeft, higher speed
+ */
 
-let image_left
-let image_right
+let image_data = { x: 0, y: 0, speed_x: 2, speed_y: 2 } // Should probably be revamped/included in sprites array/object
+
+let sprites = []
 
 let russia_background
 
-let song
+let song // Will be revamped for new sound collection system
 
 let score = 0
+let scoreRequired = 0
+
+let timeLeft = 0
+let timeLeftCounter // setInterval, used to cancel the counter whenever a game is over
 
 let gameState = 0
+
+let selectedChampion = 1 // Not susceptible to change
 
 let part = 600 / 10
 
 function preload() {
-    song = loadSound('/art/soviet.mp3')
+    let songelement = document.createElement('audio')
+    songelement.src = '/art/soviet.mp3'
+    songelement.autoplay = ''
+    document.body.appendChild(songelement)
+    song = songelement
 
-    image_left = loadImage('/art/sprite_0.png')
-    image_right = loadImage('/art/sprite_1.png')
-
-    russia_background = loadImage('/art/russia.jpg')
+    sprites.push(
+        { name: 'glaz', image: loadImage('/art/Glaz8bit.png')}, 
+        { name: 'kapkan', image: loadImage('/art/Kapkan8bit.png')},
+        { name: 'tachanka', image: loadImage('/art/Tachanka8bit.png')},
+        { name: 'background', image: loadImage('/art/Spetsnaz8bit.png')},
+        { name: 'spy_left', image: loadImage('/art/sprite_0.png')},
+        { name: 'spy_right', image: loadImage('/art/sprite_1.png')},
+        )
 }
 
 function setup() {
@@ -28,23 +53,194 @@ function setup() {
 
     textSize(16)
 
+    scoreRequired = Math.floor(random(10, 30))
+    timeLeft = Math.floor(random(60, 120))
+
     image_data.x = random(0, width-part)
     image_data.y = random(0, height-part)
+    
+    textFont('VT323')
 }
 
 function draw() {
-    background(0)
-
     if (gameState == 0) { // Pregame
-        if (!song.isPlaying()) {
-            song.play()
-        }
+        // Start introsange
+        song.play().then(() => {
+            background(0)
 
-        image(russia_background, 0, 0, width, height)
+            imageMode(CORNER)
+            image(getSprite('background').image, 0, 0, width, height)
+
+            textAlign(CENTER)
+            textSize(32)
+            stroke(100, 0, 0)
+            strokeWeight(4)
+            text('SELECT A CHAMPION', width/2, part+32)
+            textSize(18)
+            text('USE THE ARROW KEYS, PRESS ENTER WHEN YOU\'RE DONE', width/2, part+32+18)
+    
+            let glazSprite = getSprite('glaz')
+            let kapkanSprite = getSprite('kapkan')
+            let tachankaSprite = getSprite('tachanka')
+    
+            switch(selectedChampion) {
+                case 0:
+                    imageMode(CENTER)
+                    textAlign(CENTER)
+    
+                    fill(255)
+                    textSize(24)
+    
+    
+                    // KAPKAN
+                    stroke(100, 0, 0)
+                    strokeWeight(4)
+                    text('KAPKAN', part*1.5, height/2+(part*1.5+24))
+                    
+                    stroke(255,0,0)
+                    strokeWeight(1)
+                    line(part*1.5, 0, part*1.5, height)
+                    noStroke()
+    
+                    image(kapkanSprite.image, part*1.5, height/2, part*3, part*3)
+    
+                    // GLAZ
+                    stroke(100, 0, 0)
+                    strokeWeight(4)
+                    text('GLAZ', width/2, height/2+(part*0.75+24))
+    
+                    stroke(255,0,0)
+                    strokeWeight(1)
+                    line(width/2, 0, width/2, height)
+                    noStroke()
+    
+                    image(glazSprite.image, width/2, height/2, part*1.5, part*1.5)
+    
+                    // TACHANKA
+                    stroke(100, 0, 0)
+                    strokeWeight(4)
+                    text('TACHANKA', width-part*1.5, height/2+(part*0.75+24))
+    
+                    stroke(255,0,0)
+                    strokeWeight(1)
+                    line(width-part*1.5, 0, width-part*1.5, height)
+                    noStroke()
+    
+                    image(tachankaSprite.image, width-part*1.5, height/2, part*1.5, part*1.5)
+    
+                    break;
+                case 1:
+                    imageMode(CENTER)
+                    textAlign(CENTER)
+    
+                    fill(255)
+                    textSize(24)
+    
+                    // KAPKAN
+                    stroke(100, 0, 0)
+                    strokeWeight(4)
+                    text('KAPKAN', part*1.5, height/2+(part*0.75+24))   
+                    
+                    stroke(255,0,0)
+                    strokeWeight(1)             
+                    line(part*1.5, 0, part*1.5, height)
+                    noStroke()
+    
+                    image(kapkanSprite.image, part*1.5, height/2, part*1.5, part*1.5)
+    
+                    
+                    // GLAZ
+                    stroke(100, 0, 0)
+                    strokeWeight(4)
+                    text('GLAZ', width/2, height/2+(part*1.5+24))
+    
+                    stroke(255,0,0) 
+                    strokeWeight(1)            
+                    line(width/2, 0, width/2, height)
+                    noStroke()
+    
+                    image(glazSprite.image, width/2, height/2, part*3, part*3)
+    
+                    // TACHANKA
+                    stroke(100, 0, 0)
+                    strokeWeight(4)
+                    text('TACHANKA', width-part*1.5, height/2+(part*0.75+24))
+    
+                    stroke(255, 0, 0)
+                    strokeWeight(1)
+                    line(width-part*1.5, 0, width-part*1.5, height)
+                    noStroke()
+                    
+                    image(tachankaSprite.image, width-part*1.5, height/2, part*1.5, part*1.5)
+    
+                    break;
+                case 2:
+                    imageMode(CENTER)
+                    textAlign(CENTER)
+    
+                    fill(255)
+                    textSize(24)
+    
+    
+                    // KAPKAN
+                    stroke(100, 0, 0)
+                    strokeWeight(4)
+                    text('KAPKAN', part*1.5, height/2+(part*0.75+24))
+                    
+                    stroke(255,0,0)
+                    strokeWeight(1)
+                    line(part*1.5, 0, part*1.5, height)
+                    noStroke()
+    
+                    image(kapkanSprite.image, part*1.5, height/2, part*1.5, part*1.5)
+    
+                    // GLAZ
+                    stroke(100, 0, 0)
+                    strokeWeight(4)
+                    text('GLAZ', width/2, height/2+(part*0.75+24))
+                    
+                    stroke(255,0,0)
+                    strokeWeight(1)
+                    line(width/2, 0, width/2, height)
+                    noStroke()
+    
+                    image(glazSprite.image, width/2, height/2, part*1.5, part*1.5)
+    
+                    // TACHANKA
+                    stroke(100, 0, 0)
+                    strokeWeight(4)
+                    text('TACHANKA', width-part*1.5, height/2+(part*1.5+24))
+    
+                    stroke(255,0,0)
+                    strokeWeight(1)
+                    line(width-part*1.5, 0, width-part*1.5, height)
+                    noStroke()
+    
+                    image(tachankaSprite.image, width-part*1.5, height/2, part*3, part*3)
+    
+                    break;
+                default:
+                    break;
+            }
+        }, () => {
+            background(0)
+            fill(255, 0, 0)
+            textAlign(CENTER)
+            textSize(24)
+            text(`PLEASE INTERACT WITH THE PAGE`, width/2, height/2)
+        })
     } else if (gameState == 1) { // Kjører
-        drawGame()
-    } else if (gameState == 2) { // Pause
+        background(0)
 
+        // Stopp introsangen
+        song.pause()
+
+        drawGame()
+    } else if (gameState == 2) { // Ferdig
+        background(0)
+
+        imageMode(CORNER)
+        image(getSprite('background').image, 0, 0, width, height)
     }
 }
 
@@ -52,15 +248,16 @@ function drawGame() {
     noCursor()
 
     rectMode(CORNER)
+    imageMode(CORNER)
     stroke(255)
     noFill()
 
     if(Math.sign(image_data.speed_x) == 1) {
         rect(image_data.x, image_data.y, part,part)
-        image(image_right, image_data.x, image_data.y, part, part)
+        image(getSprite('spy_right').image, image_data.x, image_data.y, part, part)
     } else if (Math.sign(image_data.speed_x) == -1) {
         rect(image_data.x, image_data.y, part,part)
-        image(image_left, image_data.x, image_data.y, part, part)
+        image(getSprite('spy_left').image, image_data.x, image_data.y, part, part)
     }
     noStroke()
 
@@ -69,8 +266,17 @@ function drawGame() {
     update()
 
     fill(255)
+
+    let scoreText = `Score: ${score}`
+    let scoreRequiredText = `Score required: ${scoreRequired}`
+    let timeLeftText = `Time left: ${timeLeft} sec`
+
+    textSize(16)
     textAlign(RIGHT)
-    text(`Score: ${score}`, width-6, 20)
+    
+    text(scoreText, textWidth(scoreText) + 6, 18)
+    text(scoreRequiredText, textWidth(scoreRequiredText) + 6, 36)
+    text(timeLeftText, textWidth(timeLeftText) + 6, 54)
 }
 
 function drawArrow() {
@@ -95,13 +301,40 @@ function drawArrow() {
     rect(mouseX + offset, mouseY, length, thickness)
 }
 
-function mouseClicked() {
-    if(mouseX >= image_data.x && mouseX <= (image_data.x + part)) {
-        if(mouseY >= image_data.y && mouseY <= (image_data.y + part)) {
-            image_data.x = random(0, width-part)
-            image_data.y = random(0, height-part)
+function keyPressed() {
+    if (gameState == 0) {
+        if (keyCode == LEFT_ARROW) {
+            if (selectedChampion == 0) selectedChampion = 2
+            else selectedChampion -= 1
+        } else if (keyCode == RIGHT_ARROW) {
+            if (selectedChampion == 2) selectedChampion = 0
+            else selectedChampion += 1
+        } else if (keyCode == ENTER) {
+            gameState = 1
 
-            score += 1
+            timeLeftCounter = setInterval(() => {
+                timeLeft -= 1
+            }, 1000)
+        }
+    }
+}
+
+function mouseClicked() {
+    if (gameState == 1) {
+        if(mouseX >= image_data.x && mouseX <= (image_data.x + part)) {
+            if(mouseY >= image_data.y && mouseY <= (image_data.y + part)) {
+                image_data.x = random(0, width-part)
+                image_data.y = random(0, height-part)
+
+                image_data.speed_x = Math.floor(random(2, 6))
+                image_data.speed_y = Math.floor(random(2, 6))
+    
+                score += 1
+
+                if (score == scoreRequired) {
+                    gameState = 2
+                }
+            }
         }
     }
 }
@@ -126,3 +359,10 @@ function update() {
         image_data.speed_y = Math.abs(image_data.speed_y)
     }
 }
+
+function getSprite(name) {
+    return sprites.filter(sprite => { return sprite.name == name })[0]
+}
+
+// Lånt fra https://gist.github.com/phobeo/793329
+function gcd(a,b) {if(b>a) {temp = a; a = b; b = temp} while(b!=0) {m=a%b; a=b; b=m;} return a;}
