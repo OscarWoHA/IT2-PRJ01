@@ -1,82 +1,96 @@
-/**
- * TODO
- * - Implement sounds
- * - Implement background on main game
- * - More comments
- */
-
+// Array filled with all the beautiful sprites of this game
 let sprites = []
 
+// Array filled with all the beautiful sounds of this game
 let sounds = []
 
+// Divided later, had some issues with using floats so we decided to go for normal integers
 let volume = 2
 
+// Variable to store number value for score
 let score = 0
+
+// Variable to store number value for score required to win the game
 let scoreRequired = 0
 
+// Variable stores number value for seconds left on the timer
 let timeLeft = 0
 let timeLeftCounter // setInterval, used to cancel the counter whenever a game is over
 
+// Sets the state of the game (0 = champion select, 1 = actual game, 2 = end screen)
 let gameState = 0
 
+// Variable used later for mob and arrow object, not generated until p5js setup-function
 let mob, arrow
 
-let selectedChampion = 1 // Not susceptible to change
+// Storing the selected champion
+let selectedChampion = 1
 
+// Using the size of the canvas to create a "grid"
 let part = 600 / 10
 
+// We have three background, need to store which one is selected in a variable
+let randomBackground
+
 function preload() {
+    /**
+     * Champion codes:
+     * 1 = Glaz
+     * 0 = Kapkan
+     * 2 = Tachanka
+     */
+
     // Initialize all sounds into sound array
     sounds.push({
         name: 'intro',
         sound: insertAudio('art/soviet_lav.mp3')
     }, {
         name: 'bullets',
-        sound: loadSound('art/glaz/bullets.mp3'),
-        champion: 1 // glaz
+        sound: insertAudio('art/glaz/bullets.mp3'),
+        champion: 1 
     }, {
         name: 'oneshot',
-        sound: loadSound('art/glaz/oneshot.mp3'),
+        sound: insertAudio('art/glaz/oneshot.mp3'),
         champion: 1
     }, {
         name: 'ready',
-        sound: loadSound('art/glaz/ready.mp3'),
+        sound: insertAudio('art/glaz/ready.mp3'),
         champion: 1
     }, {
         name: 'glaz_gun',
-        sound: loadSound('art/glaz/gun.mp3'),
+        sound: insertAudio('art/glaz/gun.mp3'),
         champion: 1
     }, {
         name: 'iknow',
-        sound: loadSound('art/kapkan/iknow.mp3'),
+        sound: insertAudio('art/kapkan/iknow.mp3'),
         champion: 0
     }, {
         name: 'job',
-        sound: loadSound('art/kapkan/job.mp3'),
+        sound: insertAudio('art/kapkan/job.mp3'),
         champion: 0
     }, {
         name: 'kapkan_gun',
-        sound: loadSound('art/kapkan/gun.mp3'),
+        sound: insertAudio('art/kapkan/gun.mp3'),
         champion: 0
     }, {
         name: 'detected',
-        sound: loadSound('art/tachanka/detected.mp3'),
+        sound: insertAudio('art/tachanka/detected.mp3'),
         champion: 2
     }, {
         name: 'lmg',
-        sound: loadSound('art/tachanka/lmg.mp3'),
+        sound: insertAudio('art/tachanka/lmg.mp3'),
         champion: 2
     }, {
         name: 'rely',
-        sound: loadSound('art/tachanka/rely.mp3'),
+        sound: insertAudio('art/tachanka/rely.mp3'),
         champion: 2
     }, {
         name: 'tachanka_gun',
-        sound: loadSound('art/tachanka/gun.mp3'),
+        sound: insertAudio('art/tachanka/gun.mp3'),
         champion: 2
     }, {
         name: 'commie_fucker',
-        sound: loadSound('art/commie_fucker.mp3')
+        sound: insertAudio('art/commie_fucker.mp3')
     })
 
     // Initialize all sprites into sprite array
@@ -110,9 +124,12 @@ function preload() {
     })
 }
 
-let randomBackground
-
+/**
+ * p5.js's setup() function
+ * Used to createCanvas to size, set the framerate of the game, create Mob and Arrow objects and generate the random numbers needed for the actual game
+ */
 function setup() {
+
     createCanvas(600, 600)
     frameRate(60)
 
@@ -126,7 +143,13 @@ function setup() {
     textFont('VT323')
 }
 
+/**
+ * The heart (or brain) of this game, p5.js's draw() function
+ * Called at every x framerate, for this game that is 60 times per second (or at least that's what it's trying to hit
+ * Fills the canvas with all sorts of shenanigans
+ */
 function draw() {
+    // if statement to determine what sort of content is to be drawn on the canvas
     if (gameState == 0) { // Pregame
         // Start intro
         getSound('intro').sound.play().then(() => {
@@ -163,7 +186,7 @@ function draw() {
 
                     stroke(255, 0, 0)
                     strokeWeight(1)
-                    line(part * 1.5, 0, part * 1.5, height)
+                    //line(part * 1.5, 0, part * 1.5, height)
                     noStroke()
 
                     image(kapkanSprite.image, part * 1.5, height / 2, part * 3, part * 3)
@@ -175,7 +198,7 @@ function draw() {
 
                     stroke(255, 0, 0)
                     strokeWeight(1)
-                    line(width / 2, 0, width / 2, height)
+                    //line(width / 2, 0, width / 2, height)
                     noStroke()
 
                     image(glazSprite.image, width / 2, height / 2, part * 1.5, part * 1.5)
@@ -187,7 +210,7 @@ function draw() {
 
                     stroke(255, 0, 0)
                     strokeWeight(1)
-                    line(width - part * 1.5, 0, width - part * 1.5, height)
+                    //line(width - part * 1.5, 0, width - part * 1.5, height)
                     noStroke()
 
                     image(tachankaSprite.image, width - part * 1.5, height / 2, part * 1.5, part * 1.5)
@@ -207,7 +230,7 @@ function draw() {
 
                     stroke(255, 0, 0)
                     strokeWeight(1)
-                    line(part * 1.5, 0, part * 1.5, height)
+                    //line(part * 1.5, 0, part * 1.5, height)
                     noStroke()
 
                     image(kapkanSprite.image, part * 1.5, height / 2, part * 1.5, part * 1.5)
@@ -220,7 +243,7 @@ function draw() {
 
                     stroke(255, 0, 0)
                     strokeWeight(1)
-                    line(width / 2, 0, width / 2, height)
+                    //line(width / 2, 0, width / 2, height)
                     noStroke()
 
                     image(glazSprite.image, width / 2, height / 2, part * 3, part * 3)
@@ -232,7 +255,7 @@ function draw() {
 
                     stroke(255, 0, 0)
                     strokeWeight(1)
-                    line(width - part * 1.5, 0, width - part * 1.5, height)
+                    //line(width - part * 1.5, 0, width - part * 1.5, height)
                     noStroke()
 
                     image(tachankaSprite.image, width - part * 1.5, height / 2, part * 1.5, part * 1.5)
@@ -253,7 +276,7 @@ function draw() {
 
                     stroke(255, 0, 0)
                     strokeWeight(1)
-                    line(part * 1.5, 0, part * 1.5, height)
+                    //line(part * 1.5, 0, part * 1.5, height)
                     noStroke()
 
                     image(kapkanSprite.image, part * 1.5, height / 2, part * 1.5, part * 1.5)
@@ -265,7 +288,7 @@ function draw() {
 
                     stroke(255, 0, 0)
                     strokeWeight(1)
-                    line(width / 2, 0, width / 2, height)
+                    //line(width / 2, 0, width / 2, height)
                     noStroke()
 
                     image(glazSprite.image, width / 2, height / 2, part * 1.5, part * 1.5)
@@ -277,7 +300,7 @@ function draw() {
 
                     stroke(255, 0, 0)
                     strokeWeight(1)
-                    line(width - part * 1.5, 0, width - part * 1.5, height)
+                    //line(width - part * 1.5, 0, width - part * 1.5, height)
                     noStroke()
 
                     image(tachankaSprite.image, width - part * 1.5, height / 2, part * 3, part * 3)
@@ -438,19 +461,23 @@ function keyPressed() {
     }
 }
 
+/**
+ * mouseClicked() function
+ * Run every time the user clicks inside our canvas, determines if arrow (mouseX and mouseY) is within the bounds of the "spy" sprite
+ */
 function mouseClicked() {
     if (gameState == 1) {
         let sound = sounds.filter(sound => {
             return sound.champion == selectedChampion && sound.name.includes('_gun')
         })[0]
 
-        if (!sound.sound.isPlaying())
+        if (sound.sound.paused)
             sound.sound.play()
 
-        sound.sound.onended(() => {
-            if (!getSound('commie_fucker').sound.isPlaying())
+        sound.sound.onended = () => {
+            if (getSound('commie_fucker').sound.paused)
                 getSound('commie_fucker').sound.play()
-        })
+        }
 
         if (mouseX >= mob.x && mouseX <= (mob.x + part)) {
             if (mouseY >= mob.y && mouseY <= (mob.y + part)) {
@@ -489,12 +516,16 @@ function getSprite(name) {
  */
 function getSound(name) {
     return sounds.filter(sound => {
+        sound.sound.volume = volume / 10
+
         return sound.name == name
     })[0]
 }
 
 function getSoundsByChampion(champion) {
     return sounds.filter(sound => {
+        sound.sound.volume = volume / 10
+
         return sound.champion == champion && !sound.name.includes('_gun')
     })
 }
