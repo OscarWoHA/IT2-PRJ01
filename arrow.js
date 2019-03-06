@@ -14,7 +14,7 @@ class Arrow {
     draw() {
         rectMode(CENTER)
 
-        fill(255, 0, 0)
+        fill(0, 255, 0)
 
         // Rektangel nord
         rect(mouseX, mouseY - this.offset, this.thicccccness, this.length)

@@ -29,7 +29,7 @@ let selectedChampion = 1
 // Using the size of the canvas to create a "grid"
 let part = 600 / 10
 
-// We have three background, need to store which one is selected in a variable
+// We have two backgrounds, need to store which one is selected in a variable
 let randomBackground
 
 function preload() {
@@ -138,7 +138,7 @@ function setup() {
 
     scoreRequired = Math.floor(random(10, 30))
     timeLeft = Math.floor(random(30, 60))
-    randomBackground = Math.floor(random(0, 100))
+    randomBackground = Math.floor(random(0, 1))
 
     textFont('VT323')
 }
@@ -347,7 +347,7 @@ function draw() {
     } else if (gameState == 1) { // Kjører
         background(0) // Set the background to black every frame
 
-        if (randomBackground > 50) {
+        if (randomBackground == 0) {
             image(getSprite('kremlin').image, 0, 0, width, height)
         } else {
             image(getSprite('pripyat').image, 0, 0, width, height)

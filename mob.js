@@ -38,7 +38,7 @@ class Mob {
         if (Math.sign(this.speed_x) == 1) {
             //rect(this.x, this.y, part, part)
             image(getSprite('spy_right').image, this.x, this.y, part, part)
-        } else if (Math.sign(mob.speed_x) == -1) {
+        } else if (Math.sign(this.speed_x) == -1) {
             //rect(this.x, this.y, part, part)
             image(getSprite('spy_left').image, this.x, this.y, part, part)
         }
